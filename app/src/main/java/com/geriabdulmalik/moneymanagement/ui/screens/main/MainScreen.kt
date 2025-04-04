@@ -12,28 +12,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavController
 import androidx.navigation.NavGraph
 import androidx.navigation.compose.rememberNavController
+import com.geriabdulmalik.moneymanagement.navigation.NavigationGraph
 
 @Composable
-fun MainScreen() {
+fun MainScreen(navMainController: NavController) {
 
     val navController = rememberNavController()
     Scaffold(
         bottomBar = { BottomNavBar(navController, onFabClick = { navController.navigate("add") }) },
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = { navController.navigate("add") },
-                containerColor = Color.Blue, // Material3 menggunakan containerColor
-                contentColor = Color.White
-            ) {
-                Icon(Icons.Default.Add, contentDescription = "Add Transaction")
-            }
-        },
-        floatingActionButtonPosition = FabPosition.Center, // FAB di tengah
     ) { paddingValues ->
         Column(modifier = Modifier.padding(paddingValues)) {
-//            NavGraph(navController = navController)
+            NavigationGraph(navController = navMainController, navHostController = navController)
         }
     }
 }
@@ -41,5 +33,5 @@ fun MainScreen() {
 @Preview
 @Composable
 fun MainScreenPrev() {
-    MainScreen()
+    MainScreen(rememberNavController())
 }

@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.geriabdulmalik.moneymanagement.data.repository.AuthRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -19,6 +20,17 @@ class LoginViewModel @Inject constructor(private val mAuthRepository: AuthReposi
 
     private val _resultState = MutableStateFlow<ResultState>(ResultState.Idle)
     val resultState: StateFlow<ResultState> = _resultState.asStateFlow()
+
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading
+
+    fun startLoading() {
+        _isLoading.value = true
+        viewModelScope.launch {
+            delay(3000) // Simulasi loading
+            _isLoading.value = false
+        }
+    }
 
     fun login(email: String, password: String) {
         viewModelScope.launch {

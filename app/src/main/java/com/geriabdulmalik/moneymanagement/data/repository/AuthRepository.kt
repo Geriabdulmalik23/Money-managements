@@ -1,8 +1,7 @@
 package com.geriabdulmalik.moneymanagement.data.repository
 
-import android.util.Log
 import com.geriabdulmalik.moneymanagement.data.model.AuthResponse
-import com.geriabdulmalik.moneymanagement.data.remote.AuthPreferences
+import com.geriabdulmalik.moneymanagement.data.local.AuthPreferences
 import com.geriabdulmalik.moneymanagement.data.remote.AuthService
 import kotlinx.coroutines.flow.Flow
 import okhttp3.MediaType.Companion.toMediaTypeOrNull

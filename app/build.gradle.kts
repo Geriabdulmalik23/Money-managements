@@ -64,6 +64,7 @@ dependencies {
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3-android:1.2.0-rc01")
     implementation("androidx.compose.animation:animation:1.6.0")
+    implementation("com.google.accompanist:accompanist-placeholder-material:0.33.2-alpha")
 
     // 🔹 Navigation
     implementation("androidx.navigation:navigation-compose:2.7.6") // Navigasi antar layar di Compose

@@ -1,13 +1,11 @@
 package com.geriabdulmalik.moneymanagement.ui.screens.auth.login
 
-import android.util.Log
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.geriabdulmalik.moneymanagement.data.model.BodyResponse
 import com.geriabdulmalik.moneymanagement.data.repository.AuthRepository
+import com.geriabdulmalik.moneymanagement.utils.ApiResult
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -18,30 +16,18 @@ import javax.inject.Inject
 class LoginViewModel @Inject constructor(private val mAuthRepository: AuthRepository) :
     ViewModel() {
 
-    private val _resultState = MutableStateFlow<ResultState>(ResultState.Idle)
-    val resultState: StateFlow<ResultState> = _resultState.asStateFlow()
+    private val _resultState = MutableStateFlow<ResultState<BodyResponse>>(ResultState.Idle)
+    val resultState: StateFlow<ResultState<BodyResponse>> = _resultState.asStateFlow()
 
-    private val _isLoading = MutableStateFlow(false)
-    val isLoading: StateFlow<Boolean> = _isLoading
-
-    fun startLoading() {
-        _isLoading.value = true
-        viewModelScope.launch {
-            delay(3000) // Simulasi loading
-            _isLoading.value = false
-        }
-    }
 
     fun login(email: String, password: String) {
         viewModelScope.launch {
-            _resultState.emit(ResultState.Loading) // Gunakan emit() karena StateFlow adalah Flow
+            _resultState.emit(ResultState.Loading)
             try {
-                val response = mAuthRepository.authLogin(email, password)
-
-                if (response.status) {
-                    _resultState.emit(ResultState.Success(response))
-                } else {
-                    _resultState.emit(ResultState.Error(response.message))
+                when (val result = mAuthRepository.authLogin(email = email, password = password)) {
+                    is ApiResult.Success -> _resultState.emit(ResultState.Success(result.data))
+                    is ApiResult.Error -> _resultState.emit(ResultState.Error(result.message))
+                    else -> _resultState.emit(ResultState.Idle)
                 }
             } catch (e: Exception) {
                 _resultState.emit(ResultState.Error(e.message ?: "Login failed"))

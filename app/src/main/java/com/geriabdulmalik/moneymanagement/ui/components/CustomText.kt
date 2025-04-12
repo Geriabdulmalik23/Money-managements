@@ -13,15 +13,17 @@ import com.geriabdulmalik.moneymanagement.ui.theme.Black70
 
 @Composable
 fun CustomTextMedium(
+    modifier: Modifier = Modifier,
     text: String,
     fontWeight: FontWeight = FontWeight.W400,
-    color: Color = Black70
+    color: Color = Black70,
 ) {
     Text(
         text = text,
         style = AppTypography.bodySmall,
         fontWeight = fontWeight,
-        color = color
+        color = color,
+        modifier = modifier
     )
 
 }

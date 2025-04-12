@@ -6,6 +6,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -19,7 +20,10 @@ class AuthPreferences @Inject constructor(@ApplicationContext private val contex
         private val TOKEN_KEY = stringPreferencesKey("jwt_token")
     }
 
+    private var cachedToken: String? = null
+
     val token: Flow<String?> = context.dataStore.data.map { preferences ->
+        cachedToken = preferences[TOKEN_KEY]
         preferences[TOKEN_KEY]
     }
 
@@ -27,6 +31,7 @@ class AuthPreferences @Inject constructor(@ApplicationContext private val contex
         context.dataStore.edit { preferences ->
             preferences[TOKEN_KEY] = token
         }
+        cachedToken = token
     }
 
     suspend fun clearToken(token: String) {
@@ -34,5 +39,7 @@ class AuthPreferences @Inject constructor(@ApplicationContext private val contex
             preferences.remove(TOKEN_KEY)
         }
     }
+
+    fun getTokenSync(): String? = cachedToken
 
 }

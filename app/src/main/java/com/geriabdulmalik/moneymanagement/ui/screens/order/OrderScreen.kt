@@ -2,14 +2,20 @@ package com.geriabdulmalik.moneymanagement.ui.screens.order
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -21,8 +27,7 @@ import androidx.navigation.compose.rememberNavController
 import com.geriabdulmalik.moneymanagement.R
 import com.geriabdulmalik.moneymanagement.ui.components.CustomTextMedium
 import com.geriabdulmalik.moneymanagement.ui.components.TopBarWithDivider
-import com.geriabdulmalik.moneymanagement.ui.theme.AppTypography
-import com.geriabdulmalik.moneymanagement.ui.theme.Black70
+import com.geriabdulmalik.moneymanagement.ui.theme.Gray90
 
 @Composable
 fun OrderScreen(navController: NavController) {
@@ -42,6 +47,7 @@ fun OrderScreen(navController: NavController) {
                 contentDescription = null
             )
             Spacer(modifier = Modifier.height(24.dp))
+
             featureGame()
         }
     }
@@ -49,6 +55,11 @@ fun OrderScreen(navController: NavController) {
 
 @Composable
 fun featureGame() {
+
+    val gameIdText = remember {
+        mutableStateOf("")
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -59,8 +70,36 @@ fun featureGame() {
 
         Spacer(modifier = Modifier.height(12.dp))
 
-
-
+        Row(modifier = Modifier, horizontalArrangement = Arrangement.SpaceBetween) {
+            Box(modifier = Modifier.weight(1.0f)) {
+                TextField(
+                    value = gameIdText.value,
+                    onValueChange = { gameIdText.value = it },
+                    placeholder = {
+                        CustomTextMedium(
+                            text = "Game ID",
+                            color = Gray90,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    })
+            }
+            Box(
+                modifier = Modifier
+                    .weight(0.5f)
+                    .padding(start = 8.dp)
+            ) {
+                TextField(
+                    value = gameIdText.value,
+                    onValueChange = { gameIdText.value = it },
+                    placeholder = {
+                        CustomTextMedium(
+                            text = "Game ID",
+                            color = Gray90,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    })
+            }
+        }
     }
 }
 

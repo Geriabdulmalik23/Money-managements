@@ -39,6 +39,7 @@ import com.geriabdulmalik.moneymanagement.ui.components.getAdaptiveSize
 import com.geriabdulmalik.moneymanagement.ui.theme.AppTypography
 import com.geriabdulmalik.moneymanagement.ui.theme.Black70
 import com.geriabdulmalik.moneymanagement.ui.theme.ColorPrimary
+import com.geriabdulmalik.moneymanagement.ui.theme.Dimens.PaddingLarge
 import com.geriabdulmalik.moneymanagement.ui.theme.Gray90
 import com.geriabdulmalik.moneymanagement.ui.theme.White90
 
@@ -58,11 +59,11 @@ fun TransactionScreen() {
                 .background(color = Color.White)
                 .fillMaxSize()
         ) {
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(PaddingLarge))
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 24.dp),
+                    .padding(horizontal = PaddingLarge),
                 horizontalArrangement = Arrangement.SpaceAround,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -82,9 +83,6 @@ fun TransactionScreen() {
                             )
                         },
                         modifier = Modifier.fillMaxWidth(),
-                        keyboardOptions = KeyboardOptions.Default.copy(
-                            keyboardType = KeyboardType.Text
-                        ),
                         colors = TextFieldDefaults.colors(
                             unfocusedContainerColor = White90,
                             focusedContainerColor = White90,
@@ -136,7 +134,7 @@ fun TransactionScreen() {
                         .width(200.dp)
                         .height(160.dp)
                 )
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(PaddingLarge))
                 Text(
                     text = "No Transactions Yet",
                     style = AppTypography.bodyLarge,

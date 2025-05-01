@@ -14,6 +14,7 @@ import com.geriabdulmalik.moneymanagement.ui.screens.main.transaction.Transactio
 import com.geriabdulmalik.moneymanagement.ui.screens.notifications.NotificationScreen
 import com.geriabdulmalik.moneymanagement.ui.screens.onboarding.onboarding.OnboardingScreen
 import com.geriabdulmalik.moneymanagement.ui.screens.onboarding.splash.SplashScreen
+import com.geriabdulmalik.moneymanagement.ui.screens.order.OrderScreen
 
 sealed class Screen(val route: String) {
     object SplashScreen : Screen("splashscreen")
@@ -21,6 +22,8 @@ sealed class Screen(val route: String) {
     object LoginScreen : Screen("login")
     object MainScreen : Screen("main")
     object NotificationScreen : Screen("notification")
+
+    object OrderScreen : Screen("order")
 
     //BottomNavigation
     object HomeScreen : Screen("home")
@@ -50,6 +53,10 @@ fun AppNavigation(navController: NavHostController) {
 
         composable(Screen.NotificationScreen.route) {
             NotificationScreen(navController = navController)
+        }
+
+        composable(Screen.OrderScreen.route) {
+            OrderScreen(navController = navController)
         }
     }
 }

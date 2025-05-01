@@ -2,14 +2,14 @@ package com.geriabdulmalik.moneymanagement.ui.screens.main.home
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
-import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -17,12 +17,15 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
@@ -37,15 +40,83 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.geriabdulmalik.moneymanagement.R
+import com.geriabdulmalik.moneymanagement.domain.model.FeatureModel
 import com.geriabdulmalik.moneymanagement.ui.components.TopBarWithLogo
-import com.geriabdulmalik.moneymanagement.ui.components.getAdaptiveSize
 import com.geriabdulmalik.moneymanagement.ui.theme.AppTypography
 import com.geriabdulmalik.moneymanagement.ui.theme.Black70
+import com.geriabdulmalik.moneymanagement.ui.theme.Blue90
+import com.geriabdulmalik.moneymanagement.ui.theme.ColorPrimary
 import com.geriabdulmalik.moneymanagement.ui.theme.Gray100
 import com.geriabdulmalik.moneymanagement.ui.theme.White90
 
 @Composable
 fun HomeScreen(navController: NavController) {
+
+
+    val featureGame = listOf<FeatureModel>(
+        FeatureModel(
+            title = "Mobile Legend",
+            image = painterResource(id = R.drawable.ic_game_mobile_legends),
+            route = "order"
+        ), FeatureModel(
+            title = "Free Fire",
+            image = painterResource(id = R.drawable.ic_game_free_fire),
+            route = ""
+        ), FeatureModel(
+            title = "Honor Of Kings",
+            image = painterResource(id = R.drawable.ic_game_honor_of_kings),
+            route = ""
+        ), FeatureModel(
+            title = "Auto Chess",
+            image = painterResource(id = R.drawable.ic_game_auto_chess),
+            route = ""
+        ),
+        FeatureModel(
+            title = "see",
+            image = painterResource(id = R.drawable.ic_menu_stroke_filled),
+            route = ""
+        )
+    )
+
+    val featureTopUp = listOf(
+        FeatureModel(
+            title = "Shopee Pay",
+            image = painterResource(id = R.drawable.ic_wallet_spay),
+            route = ""
+        ), FeatureModel(
+            title = "Gopay", image = painterResource(id = R.drawable.ic_wallet_gopay), route = ""
+        ), FeatureModel(
+            title = "Dana", image = painterResource(id = R.drawable.ic_wallet_dana), route = ""
+        ), FeatureModel(
+            title = "OVO", image = painterResource(id = R.drawable.ic_wallet_ovo), route = ""
+        ),
+        FeatureModel(
+            title = "see",
+            image = painterResource(id = R.drawable.ic_menu_stroke_filled),
+            route = ""
+        )
+    )
+
+    val featureMobileCredit = listOf(
+        FeatureModel(
+            title = "by.U", image = painterResource(id = R.drawable.ic_provider_byu), route = ""
+        ), FeatureModel(
+            title = "Telkomsel",
+            image = painterResource(id = R.drawable.ic_provider_telkomsel),
+            route = ""
+        ), FeatureModel(
+            title = "Indosat",
+            image = painterResource(id = R.drawable.ic_provider_indosat),
+            route = ""
+        ), FeatureModel(
+            title = "Axis", image = painterResource(id = R.drawable.ic_provider_axis), route = ""
+        ),
+        FeatureModel(
+            title = "see",
+            image = painterResource(id = R.drawable.ic_menu_stroke_filled),
+            route = ""
+        )
+    )
 
     Scaffold(topBar = {
         TopBarWithLogo(navController = navController)
@@ -57,7 +128,6 @@ fun HomeScreen(navController: NavController) {
                 .padding(paddingValues)
                 .fillMaxSize()
                 .background(Color.White)
-                .size(getAdaptiveSize(small = 50.dp, medium = 60.dp, large = 80.dp))
                 .verticalScroll(rememberScrollState())
         ) {
             Spacer(modifier = Modifier.height(12.dp))
@@ -74,19 +144,21 @@ fun HomeScreen(navController: NavController) {
 
             CardFeature()
 
-            GameRecommendation("Game Recommendation")
+            FeatureRecommendation("Game Recommendation", items = featureGame) {
+                navController.navigate(it)
+            }
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            GameRecommendation("Top Up E-Wallet")
+            FeatureRecommendation("Top Up E-Wallet", items = featureTopUp) {
+
+            }
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            GameRecommendation("Application Vouchers")
+            FeatureRecommendation("Top up Mobile Credit", items = featureMobileCredit) {
 
-            Spacer(modifier = Modifier.height(24.dp))
-
-            GameRecommendation("Top up Mobile Credit")
+            }
 
         }
     }
@@ -184,7 +256,11 @@ fun CardFeature() {
 }
 
 @Composable
-fun GameRecommendation(title: String = "Game Recommendation") {
+fun FeatureRecommendation(
+    title: String = "Game Recommendation",
+    items: List<FeatureModel>,
+    onItemClick: (String) -> Unit
+) {
     Column(modifier = Modifier.padding(start = 24.dp)) {
         Text(
             text = title,
@@ -195,31 +271,68 @@ fun GameRecommendation(title: String = "Game Recommendation") {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .horizontalScroll(rememberScrollState())
+        LazyRow(
+            contentPadding = PaddingValues(end = 24.dp)
         ) {
-            repeat(5) {
-                Column(modifier = Modifier.padding(end = 12.dp)) {
-                    Image(
-                        painter = painterResource(id = R.drawable.img_mobile_legends),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .width(100.dp)
-                            .height(165.dp)
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = "Mobile Legends",
-                        style = AppTypography.bodySmall,
-                        fontWeight = FontWeight.W400,
-                        color = Black70,
+            items(items) {
+                when (it.title) {
 
-                        )
+                    "see" -> MoreFeature()
+
+                    else -> {
+                        Column(
+                            modifier = Modifier
+                                .padding(end = 12.dp)
+                                .clickable {
+                                    onItemClick(it.route)
+                                },
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Image(
+                                painter = it.image,
+                                contentDescription = null,
+                                modifier = Modifier.size(width = 100.dp, height = 140.dp)
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                text = it.title,
+                                style = AppTypography.bodySmall,
+                                fontWeight = FontWeight.W400,
+                                color = Black70,
+                            )
+                        }
+                    }
                 }
             }
         }
+    }
+}
+
+@Composable
+fun MoreFeature() {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Box(
+            Modifier
+                .size(width = 100.dp, height = 140.dp)
+                .background(
+                    shape = RoundedCornerShape(
+                        8.dp
+                    ), color = Blue90
+                ), contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_menu_stroke_filled),
+                contentDescription = null,
+                tint = ColorPrimary
+            )
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = "See All",
+            style = AppTypography.bodySmall,
+            fontWeight = FontWeight.W400,
+            color = ColorPrimary,
+        )
     }
 }
 
@@ -323,4 +436,5 @@ fun WalletInfo() {
 @Composable
 fun HomeScreenPrev() {
     HomeScreen(navController = rememberNavController())
+//    MoreFeature()
 }

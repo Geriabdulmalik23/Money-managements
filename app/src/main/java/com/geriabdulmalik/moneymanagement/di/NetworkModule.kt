@@ -22,6 +22,7 @@ import javax.inject.Singleton
 object NetworkModule {
 
     private const val BASE_URL = "http://10.0.2.2:3000/api/"
+//    private const val BASE_URL = "http://192.168.0.107:3000/api/"
 
     @Provides
     fun provideSharedPreferences(
@@ -49,7 +50,6 @@ object NetworkModule {
         OkHttpClient.Builder()
             .addInterceptor(authInterceptor)
             .build()
-
 
     @Provides
     @Singleton

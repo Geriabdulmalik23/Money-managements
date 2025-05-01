@@ -1,6 +1,5 @@
 package com.geriabdulmalik.moneymanagement.ui.screens.main.account
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -38,6 +37,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.geriabdulmalik.moneymanagement.R
+import com.geriabdulmalik.moneymanagement.ui.components.ShimmerEffect
 import com.geriabdulmalik.moneymanagement.ui.components.TopBarWithDivider
 import com.geriabdulmalik.moneymanagement.ui.components.getAdaptiveSize
 import com.geriabdulmalik.moneymanagement.ui.screens.auth.login.handle
@@ -75,7 +75,6 @@ fun AccountScreen(mAccountViewModel: AccountViewModel = hiltViewModel()) {
 
             mUserDataState.handle(
                 onSuccess = { data ->
-                    Log.d("logprofilescreen", "AccountScreen: masuk $data")
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -151,7 +150,7 @@ fun AccountScreen(mAccountViewModel: AccountViewModel = hiltViewModel()) {
                             .padding(horizontal = 24.dp),
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
                         verticalAlignment = Alignment.CenterVertically
-                    ){
+                    ) {
                         CircularProgressIndicator()
                     }
                 },
@@ -194,6 +193,13 @@ fun AccountScreen(mAccountViewModel: AccountViewModel = hiltViewModel()) {
                 title = "Logout",
                 isLogout = true,
                 onClick = {})
+
+//            ShimmerEffect(
+//                modifier = Modifier
+//                    .size(100.dp)
+//                    .background(Color.LightGray, RoundedCornerShape(50)),
+//                durationMillis = 1000
+//            )
         }
     }
 }
@@ -219,6 +225,11 @@ fun PanelSettings(icon: Painter, title: String, isLogout: Boolean = false, onCli
                 .fillMaxWidth()
         )
     }
+}
+
+@Composable
+fun shimmerLoading() {
+    ShimmerEffect(modifier = Modifier, durationMillis = 1000)
 }
 
 @Preview

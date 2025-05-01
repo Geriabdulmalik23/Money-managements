@@ -13,7 +13,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            MoneyManagementTheme {
+            MoneyManagementTheme(dynamicColor = false) {
                 val navController = rememberNavController()
                 AppNavigation(navController = navController)
             }

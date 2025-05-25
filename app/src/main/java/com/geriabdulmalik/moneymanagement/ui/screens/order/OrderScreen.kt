@@ -1,6 +1,5 @@
 package com.geriabdulmalik.moneymanagement.ui.screens.order
 
-import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -9,7 +8,6 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,21 +27,22 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -61,16 +60,22 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.geriabdulmalik.moneymanagement.R
-import com.geriabdulmalik.moneymanagement.data.model.DiamondPackage
-import com.geriabdulmalik.moneymanagement.data.model.PaymentMethod
+import com.geriabdulmalik.moneymanagement.data.model.CheckPriceResponse
+import com.geriabdulmalik.moneymanagement.data.model.CreateOrderRequest
+import com.geriabdulmalik.moneymanagement.data.model.PaymentMethodResponse
+import com.geriabdulmalik.moneymanagement.data.model.ProductItemResponse
 import com.geriabdulmalik.moneymanagement.ui.components.CustomBottomSheet
 import com.geriabdulmalik.moneymanagement.ui.components.CustomTextField
 import com.geriabdulmalik.moneymanagement.ui.components.CustomTextMedium
 import com.geriabdulmalik.moneymanagement.ui.components.DashedLine
+import com.geriabdulmalik.moneymanagement.ui.components.LoadingDialog
 import com.geriabdulmalik.moneymanagement.ui.components.TopBarWithDivider
+import com.geriabdulmalik.moneymanagement.ui.screens.auth.login.ResultState
+import com.geriabdulmalik.moneymanagement.ui.screens.auth.login.handle
 import com.geriabdulmalik.moneymanagement.ui.theme.Black70
 import com.geriabdulmalik.moneymanagement.ui.theme.ColorPrimary
 import com.geriabdulmalik.moneymanagement.ui.theme.ColorSuccess
@@ -82,6 +87,7 @@ import com.geriabdulmalik.moneymanagement.ui.theme.Dimens.PaddingSmall
 import com.geriabdulmalik.moneymanagement.ui.theme.Gray100
 import com.geriabdulmalik.moneymanagement.ui.theme.Gray90
 import com.geriabdulmalik.moneymanagement.utils.getFormattedNumber
+import com.geriabdulmalik.moneymanagement.utils.getParsingNumber
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -91,8 +97,10 @@ fun OrderScreen(navController: NavController) {
     )
     val scaffoldState = rememberBottomSheetScaffoldState(bottomSheetState)
 
+    val viewModel: OrderViewModel = hiltViewModel()
+
     BottomSheetScaffold(scaffoldState = scaffoldState, sheetPeekHeight = 90.dp, sheetContent = {
-        BottomSheetDetailContent()
+        BottomSheetDetailContent(viewModel = viewModel, navController = navController)
     }, topBar = {
         TopBarWithDivider(title = "Top Up Game", showBackButton = true) {
             navController.popBackStack()
@@ -104,7 +112,6 @@ fun OrderScreen(navController: NavController) {
                 .size(width = 40.dp, height = 4.dp)
                 .clip(RoundedCornerShape(30.dp))
                 .background(Gray100)
-//                    .align(Alignment.CenterHorizontally)
         )
     }) { innerPadding ->
         Column(
@@ -120,13 +127,14 @@ fun OrderScreen(navController: NavController) {
                 modifier = Modifier.fillMaxWidth()
             )
             Spacer(modifier = Modifier.height(PaddingLarge))
-            FeatureGameSection()
+
+            FeatureGameSection(viewModel = viewModel)
         }
     }
 }
 
 @Composable
-fun BottomSheetItemDetail() {
+fun BottomSheetItemDetail(checkPriceResponse: CheckPriceResponse?) {
     Column {
         Row(
             Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween
@@ -135,19 +143,27 @@ fun BottomSheetItemDetail() {
                 CustomTextMedium(text = "Payment Method", color = Gray90)
                 Spacer(modifier = Modifier.height(PaddingMini))
                 CustomTextMedium(
-                    text = "408 Diamonds (367 + 41)", fontWeight = FontWeight.Bold, color = Gray90
+                    text = "${checkPriceResponse?.productName}",
+                    fontWeight = FontWeight.Bold,
+                    color = Gray90
                 )
                 Spacer(modifier = Modifier.height(PaddingMini))
                 Row {
                     CustomTextMedium(text = "VAT", color = Gray90)
                     Spacer(modifier = Modifier.width(2.dp))
-                    CustomTextMedium(text = "11%", color = Color.Red)
+                    CustomTextMedium(
+                        text = " ${checkPriceResponse?.vat ?: "0"}%",
+                        color = Color.Red
+                    )
                 }
                 Spacer(modifier = Modifier.height(PaddingMini))
                 Row {
                     CustomTextMedium(text = "Promo", color = Gray90)
                     Spacer(modifier = Modifier.width(2.dp))
-                    CustomTextMedium(text = "25%", color = ColorPrimary)
+                    CustomTextMedium(
+                        text = " ${checkPriceResponse?.discount ?: "0"}%",
+                        color = ColorPrimary
+                    )
                 }
                 Spacer(modifier = Modifier.height(PaddingMini))
                 CustomTextMedium(text = "Total Price", color = Gray90)
@@ -158,19 +174,27 @@ fun BottomSheetItemDetail() {
                 )
                 Spacer(modifier = Modifier.height(PaddingMini))
                 CustomTextMedium(
-                    text = "Rp115.500", color = ColorSuccess, fontWeight = FontWeight.Bold
+                    text = getParsingNumber(checkPriceResponse?.productPrice!!),
+                    color = ColorSuccess,
+                    fontWeight = FontWeight.Bold
                 )
                 Spacer(modifier = Modifier.height(PaddingMini))
                 CustomTextMedium(
-                    text = "Rp115.500", color = Color.Red, fontWeight = FontWeight.Bold
+                    text = "RP${checkPriceResponse.totalVat ?: "RP0"}",
+                    color = Color.Red,
+                    fontWeight = FontWeight.Bold
                 )
                 Spacer(modifier = Modifier.height(PaddingMini))
                 CustomTextMedium(
-                    text = "Rp115.500", color = ColorPrimary, fontWeight = FontWeight.Bold
+                    text = "RP${checkPriceResponse.totalDiscount ?: "RP0"}",
+                    color = ColorPrimary,
+                    fontWeight = FontWeight.Bold
                 )
                 Spacer(modifier = Modifier.height(PaddingMini))
                 CustomTextMedium(
-                    text = "Rp115.500", color = ColorSuccess, fontWeight = FontWeight.Bold
+                    text = "Rp${checkPriceResponse.totalPrice ?: "RP0"}",
+                    color = ColorSuccess,
+                    fontWeight = FontWeight.Bold
                 )
             }
         }
@@ -179,9 +203,33 @@ fun BottomSheetItemDetail() {
 }
 
 @Composable
-fun BottomSheetDetailContent() {
+fun BottomSheetDetailContent(viewModel: OrderViewModel, navController: NavController) {
     var isShowFullDetail by remember { mutableStateOf(false) }
     var isCompleteFilled by remember { mutableStateOf(false) }
+    val mCheckPriceDataState by viewModel.mCheckPrice.collectAsStateWithLifecycle()
+    val mOrderResultDataState by viewModel.mOrderResult.collectAsStateWithLifecycle()
+    val isLoading = mOrderResultDataState is ResultState.Loading
+    var mCheckPriceResult by remember { mutableStateOf<CheckPriceResponse?>(null) }
+
+    mCheckPriceDataState.handle(
+        onSuccess = {
+            mCheckPriceResult = it
+            isCompleteFilled = true
+        },
+        onLoading = {
+            isCompleteFilled = false
+        },
+        onError = {
+            isCompleteFilled = false
+        }
+    )
+
+    mOrderResultDataState.handle(
+        onSuccess = {
+            navController.navigate("detail")
+        },
+    )
+    LoadingDialog(isLoading = isLoading) {}
 
     Column(
         Modifier
@@ -205,7 +253,8 @@ fun BottomSheetDetailContent() {
                         )
                         Spacer(modifier = Modifier.width(2.dp))
                         CustomTextMedium(
-                            text = "408 Diamonds (367 + 41)", fontWeight = FontWeight.Bold
+                            text = "${mCheckPriceResult?.productName}",
+                            fontWeight = FontWeight.Bold
                         )
                     }
                 }
@@ -213,7 +262,9 @@ fun BottomSheetDetailContent() {
                     CustomTextMedium(text = "Total Price", color = Gray90)
                     Spacer(modifier = Modifier.height(PaddingMini))
                     CustomTextMedium(
-                        text = "Rp115.500", color = ColorSuccess, fontWeight = FontWeight.Bold
+                        text = "RP${mCheckPriceResult?.productPrice?.let { getParsingNumber(it) }}",
+                        color = ColorSuccess,
+                        fontWeight = FontWeight.Bold
                     )
                 }
             }
@@ -228,7 +279,7 @@ fun BottomSheetDetailContent() {
                     enter = fadeIn() + expandVertically(expandFrom = Alignment.Top),
                     exit = fadeOut() + shrinkVertically(shrinkTowards = Alignment.Top)
                 ) {
-                    BottomSheetItemDetail()
+                    BottomSheetItemDetail(checkPriceResponse = mCheckPriceResult)
                 }
 
                 Text(
@@ -257,15 +308,27 @@ fun BottomSheetDetailContent() {
             }
         }
 
+
         Button(
             onClick = {
-                isCompleteFilled = true
+
+                val createOrder = CreateOrderRequest(
+                    productId = "${mCheckPriceResult?.productId}",
+                    gameId = "232123",
+                    optionId = "1",
+                    methodId = "1",
+                    server = "2011"
+                )
+                viewModel.createOrder(
+                    orderRequest = createOrder
+                )
             },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(HighTextField),
             shape = RoundedCornerShape(PaddingMini),
-            colors = ButtonDefaults.buttonColors(containerColor = ColorPrimary)
+            colors = ButtonDefaults.buttonColors(containerColor = ColorPrimary),
+            enabled = isCompleteFilled
         ) {
             Text("Buy", color = Color.White)
         }
@@ -273,7 +336,8 @@ fun BottomSheetDetailContent() {
 }
 
 @Composable
-fun FeatureGameSection() {
+fun FeatureGameSection(viewModel: OrderViewModel) {
+
     var gameIdText by remember { mutableStateOf("") }
     var zonaIdText by remember { mutableStateOf("") }
     var selectedItem by remember { mutableStateOf("") }
@@ -282,9 +346,6 @@ fun FeatureGameSection() {
     var isSelectedItem by remember { mutableStateOf(false) }
     var isSelectedPaymentMethod by remember { mutableStateOf(false) }
 
-    val isFormValid by derivedStateOf {
-        gameIdText.isNotBlank() && zonaIdText.isNotBlank() && selectedItem != null
-    }
 
     Column(
         modifier = Modifier
@@ -304,7 +365,11 @@ fun FeatureGameSection() {
                     .weight(1f)
                     .height(HighTextField),
                 placeholder = "Game ID",
-                onValueChange = { gameIdText = it },
+                onValueChange = { input ->
+                    if (input.all { it.isDigit() }) {
+                        gameIdText = input
+                    }
+                },
                 value = gameIdText,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
             )
@@ -315,26 +380,26 @@ fun FeatureGameSection() {
                     .height(HighTextField),
                 placeholder = "Zona ID",
                 value = zonaIdText,
-                onValueChange = { zonaIdText = it },
+                onValueChange = { input ->
+                    if (input.all { it.isDigit() }) {
+                        zonaIdText = input
+                    }
+                },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
             )
         }
 
         Spacer(modifier = Modifier.height(PaddingLarge))
         CustomTextMedium(
-            text = "Select Item",
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier
+            text = "Select Item", fontWeight = FontWeight.Bold, modifier = Modifier
         )
         Spacer(modifier = Modifier.height(PaddingSmall))
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable {
-                    isSelectedItem = true
-                }
-                .height(HighTextField)
-        ) {
+        Box(modifier = Modifier
+            .fillMaxWidth()
+            .clickable {
+                isSelectedItem = true
+            }
+            .height(HighTextField)) {
             CustomTextField(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -392,46 +457,50 @@ fun FeatureGameSection() {
                 .height(HighTextField),
             placeholder = "Promo Code",
             onValueChange = { promotionCode = it },
-            value = promotionCode
+            value = promotionCode,
+            isEnable = false,
+            trailingIcon = {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null
+                )
+            }
         )
 
         Spacer(modifier = Modifier.height(PaddingSmall))
 
-        val diamondPackages = remember {
-            listOf(
-                DiamondPackage("1", "170 (154 + 16) Diamonds", 170, 154, 16, 43700.0),
-                DiamondPackage("2", "240 (217 + 23) Diamonds", 240, 217, 23, 61750.0),
-                DiamondPackage("3", "296 (256 + 40) Diamonds", 296, 256, 40, 61750.0),
-                DiamondPackage("4", "408 (367 + 41) Diamonds", 408, 367, 41, 104500.0)
-            )
-        }
-
-        val listPaymentMethod = remember {
-            listOf(
-                PaymentMethod(id = 1, name = "QRIS", desc = "Lorem Ipsum dolor sit amet"),
-                PaymentMethod(id = 2, name = "BCA", desc = "Lorem Ipsum dolor sit amet"),
-                PaymentMethod(id = 3, name = "BRI", desc = "Lorem Ipsum dolor sit amet"),
-                PaymentMethod(id = 4, name = "MANDIRI", desc = "Lorem Ipsum dolor sit amet"),
-                PaymentMethod(id = 5, name = "BNI", desc = "Lorem Ipsum dolor sit amet"),
-            )
-        }
-
         CustomBottomSheet(open = isSelectedItem,
             onDismissRequest = { isSelectedItem = false },
             content = {
-                DiamondPackageListContent(diamondPackages = diamondPackages, onItemSelected = {
-                    isSelectedItem = false
-                    selectedItem = it.displayText
+
+                val mProductItemState by viewModel.mProductItem.collectAsStateWithLifecycle()
+
+                mProductItemState.handle(onSuccess = {
+                    DiamondPackageListContent(diamondPackages = it, onItemSelected = { item ->
+                        isSelectedItem = false
+                        selectedItem = item.title
+                        viewModel.checkPrice(item.id)
+                    })
+                }, onLoading = {
+                    CircularProgressIndicator()
                 })
             })
 
         CustomBottomSheet(open = isSelectedPaymentMethod,
             onDismissRequest = { isSelectedPaymentMethod = false },
             content = {
-                paymentMethodList(list = listPaymentMethod, onItemSelected = {
-                    isSelectedPaymentMethod = false
-                    paymentMethod = it.name
-                })
+                val mPaymentMethodDataState by viewModel.mPaymentMethod.collectAsStateWithLifecycle()
+                mPaymentMethodDataState.handle(
+                    onLoading = {
+                        CircularProgressIndicator()
+                    },
+                    onSuccess = {
+                        paymentMethodList(list = it, onItemSelected = { payment ->
+                            isSelectedPaymentMethod = false
+                            paymentMethod = payment.name!!
+                        })
+                    }
+                )
+
             })
     }
 }
@@ -440,23 +509,23 @@ fun FeatureGameSection() {
 @Preview
 @Composable
 fun OrderScreenPrev() {
-    OrderScreen(navController = rememberNavController())
+//    OrderScreen(navController = rememberNavController())
 }
 
 @Composable
 fun DiamondPackageListContent(
-    diamondPackages: List<DiamondPackage>, onItemSelected: (DiamondPackage) -> Unit = {}
+    diamondPackages: List<ProductItemResponse>, onItemSelected: (ProductItemResponse) -> Unit = {}
 ) {
     LazyColumn {
         items(diamondPackages) { item ->
             ListItem(headlineContent = {
-                val cleanString = item.price.toString().replace("[,.]".toRegex(), "")
+                val cleanString = item.basePrice.toString().replace("[,.]".toRegex(), "")
                 val parsed = cleanString.toDoubleOrNull() ?: 0.0
                 val formattedString = getFormattedNumber(parsed)
 
                 Column {
                     CustomTextMedium(
-                        text = item.displayText, fontWeight = FontWeight.W500, color = Black70
+                        text = item.title, fontWeight = FontWeight.W500, color = Black70
                     )
                     Spacer(modifier = Modifier.height(PaddingMini))
                     CustomTextMedium(
@@ -486,14 +555,14 @@ fun DiamondPackageListContent(
 
 @Composable
 fun paymentMethodList(
-    list: List<PaymentMethod>, onItemSelected: (PaymentMethod) -> Unit = {}
+    list: List<PaymentMethodResponse>, onItemSelected: (PaymentMethodResponse) -> Unit = {}
 ) {
     LazyColumn {
         items(list) { item ->
             ListItem(
                 headlineContent = {
                     Column {
-                        CustomTextMedium(text = item.name)
+                        CustomTextMedium(text = item.name!!)
                     }
                 }, colors = ListItemDefaults.colors(
                     containerColor = Color.White

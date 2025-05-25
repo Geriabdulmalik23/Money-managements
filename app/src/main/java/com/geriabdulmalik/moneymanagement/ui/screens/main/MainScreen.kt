@@ -16,9 +16,12 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraph
 import androidx.navigation.compose.rememberNavController
 import com.geriabdulmalik.moneymanagement.navigation.NavigationGraph
+import com.geriabdulmalik.moneymanagement.ui.components.SetSystemUiColor
+import com.geriabdulmalik.moneymanagement.ui.theme.ColorPrimary
 
 @Composable
 fun MainScreen(navMainController: NavController) {
+    SetSystemUiColor(statusBarColor = Color.White, darkIcons = true)
 
     val navController = rememberNavController()
     Scaffold(

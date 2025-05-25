@@ -34,7 +34,7 @@ class AuthPreferences @Inject constructor(@ApplicationContext private val contex
         cachedToken = token
     }
 
-    suspend fun clearToken(token: String) {
+    suspend fun clearToken() {
         context.dataStore.edit { preferences ->
             preferences.remove(TOKEN_KEY)
         }

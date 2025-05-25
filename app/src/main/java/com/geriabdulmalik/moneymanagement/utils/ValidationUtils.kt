@@ -16,7 +16,7 @@ fun validateEmail(email: String): String? {
 fun validatePassword(password: String): String? {
     return when {
         password.isBlank() -> "Password tidak boleh kosong"
-        password.length < 3 -> "Password minimal 8 karakter"
+        password.length < 6 -> "Password minimal 6 karakter"
         else -> null
     }
 }
@@ -28,4 +28,10 @@ fun getFormattedNumber(number: Double): String {
     }
     val decimalFormat = DecimalFormat("#,###", symbols)
     return decimalFormat.format(number)
+}
+
+fun getParsingNumber(number: Int): String {
+    val cleanString = number.toString().replace("[,.]".toRegex(), "")
+    val parsed = cleanString.toDoubleOrNull() ?: 0.0
+    return getFormattedNumber(parsed)
 }

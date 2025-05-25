@@ -13,7 +13,10 @@ data class UserResponse(
     @SerializedName("email")
     val email: String,
 
-    @SerializedName("createdAt")
-    val createdAt: String
+    @SerializedName("avatar_url")
+    val avatar: String?,
+
+    @SerializedName("created_at")
+    val createdAt: String?
 
 )

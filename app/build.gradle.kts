@@ -101,4 +101,7 @@ dependencies {
     // 🔹 Debugging & UI Tools
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
+
+    implementation("io.coil-kt:coil-compose:2.4.0")
+    implementation("com.google.accompanist:accompanist-systemuicontroller:0.30.1")
 }

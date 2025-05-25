@@ -2,7 +2,7 @@ package com.geriabdulmalik.moneymanagement.ui.screens.auth.login
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.geriabdulmalik.moneymanagement.data.model.BodyResponse
+import com.geriabdulmalik.moneymanagement.data.model.AuthResponse
 import com.geriabdulmalik.moneymanagement.data.repository.AuthRepository
 import com.geriabdulmalik.moneymanagement.utils.ApiResult
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -16,8 +16,8 @@ import javax.inject.Inject
 class LoginViewModel @Inject constructor(private val mAuthRepository: AuthRepository) :
     ViewModel() {
 
-    private val _resultState = MutableStateFlow<ResultState<BodyResponse>>(ResultState.Idle)
-    val resultState: StateFlow<ResultState<BodyResponse>> = _resultState.asStateFlow()
+    private val _resultState = MutableStateFlow<ResultState<AuthResponse>>(ResultState.Idle)
+    val resultState: StateFlow<ResultState<AuthResponse>> = _resultState.asStateFlow()
 
 
     fun login(email: String, password: String) {

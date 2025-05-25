@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -48,6 +49,7 @@ import androidx.navigation.compose.rememberNavController
 import com.geriabdulmalik.moneymanagement.R
 import com.geriabdulmalik.moneymanagement.navigation.Screen
 import com.geriabdulmalik.moneymanagement.ui.components.LoadingDialog
+import com.geriabdulmalik.moneymanagement.ui.components.SetSystemUiColor
 import com.geriabdulmalik.moneymanagement.ui.components.ValidatedTextField
 import com.geriabdulmalik.moneymanagement.ui.theme.AppTypography
 import com.geriabdulmalik.moneymanagement.ui.theme.Black70
@@ -69,9 +71,15 @@ fun LoginScreen(navController: NavController, authViewModel: LoginViewModel = hi
     var passwordTouched by remember { mutableStateOf(false) }
     val passwordError = if (passwordTouched) validatePassword(passwordText.value) else null
 
+    val buttonEnable =
+        (emailTouched && passwordTouched) && emailError.isNullOrEmpty() && passwordError.isNullOrEmpty()
+
     val resultState by authViewModel.resultState.collectAsState()
     val isLoading = resultState is ResultState.Loading
     val snackbarHostState = remember { SnackbarHostState() }
+
+    SetSystemUiColor(statusBarColor = ColorPrimary, darkIcons = false)
+
 
     Scaffold(snackbarHost = {
         SnackbarHost(snackbarHostState)
@@ -166,6 +174,7 @@ fun LoginScreen(navController: NavController, authViewModel: LoginViewModel = hi
                             .height(50.dp),
                         shape = RoundedCornerShape(8.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = ColorPrimary),
+                        enabled = buttonEnable
                     ) {
                         Text(text = "Sign In", fontSize = 18.sp, style = AppTypography.bodySmall)
                     }
@@ -208,8 +217,9 @@ fun LoginScreen(navController: NavController, authViewModel: LoginViewModel = hi
                         Image(
                             painter = painterResource(id = R.drawable.ic_google),
                             contentDescription = null
+
                         )
-                        Spacer(modifier = Modifier.width(8.dp))
+                        Spacer(modifier = Modifier.width(10.dp))
 
                         Text(
                             text = "Google",
@@ -233,9 +243,11 @@ fun LoginScreen(navController: NavController, authViewModel: LoginViewModel = hi
                     ) {
                         Image(
                             painter = painterResource(id = R.drawable.ic_facebook),
-                            contentDescription = null
+                            contentDescription = null,
+                            modifier = Modifier
                         )
                         Spacer(modifier = Modifier.width(8.dp))
+
                         Text(
                             text = "Facebook",
                             color = Black70,
@@ -253,8 +265,6 @@ fun LoginScreen(navController: NavController, authViewModel: LoginViewModel = hi
 
                         is ResultState.Error -> {
                             LaunchedEffect(state.message) {
-                                Log.d("checklog", "LoginScreen: apakah terpanggils")
-
                                 snackbarHostState.showSnackbar(state.message)
                             }
                         }

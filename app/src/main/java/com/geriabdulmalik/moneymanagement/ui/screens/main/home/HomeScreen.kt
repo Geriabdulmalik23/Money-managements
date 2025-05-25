@@ -4,6 +4,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,6 +30,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -37,86 +42,44 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import coil.compose.AsyncImage
 import com.geriabdulmalik.moneymanagement.R
-import com.geriabdulmalik.moneymanagement.domain.model.FeatureModel
+import com.geriabdulmalik.moneymanagement.data.model.ProductResponse
+import com.geriabdulmalik.moneymanagement.ui.components.CustomDialog
+import com.geriabdulmalik.moneymanagement.ui.components.ShimmerEffect
 import com.geriabdulmalik.moneymanagement.ui.components.TopBarWithLogo
+import com.geriabdulmalik.moneymanagement.ui.screens.auth.login.handle
 import com.geriabdulmalik.moneymanagement.ui.theme.AppTypography
 import com.geriabdulmalik.moneymanagement.ui.theme.Black70
 import com.geriabdulmalik.moneymanagement.ui.theme.Blue90
 import com.geriabdulmalik.moneymanagement.ui.theme.ColorPrimary
+import com.geriabdulmalik.moneymanagement.ui.theme.Dimens.PaddingLarge
+import com.geriabdulmalik.moneymanagement.ui.theme.Dimens.PaddingMedium
+import com.geriabdulmalik.moneymanagement.ui.theme.Dimens.PaddingMini
+import com.geriabdulmalik.moneymanagement.ui.theme.Dimens.PaddingSmall
 import com.geriabdulmalik.moneymanagement.ui.theme.Gray100
 import com.geriabdulmalik.moneymanagement.ui.theme.White90
+import com.google.accompanist.placeholder.PlaceholderHighlight
+import com.google.accompanist.placeholder.material.placeholder
+import com.google.accompanist.placeholder.material.shimmer
 
 @Composable
-fun HomeScreen(navController: NavController) {
+fun HomeScreen(navController: NavController, homeViewModel: HomeViewModel = hiltViewModel()) {
 
+    val mProductDataState by homeViewModel.mProduct.collectAsStateWithLifecycle()
 
-    val featureGame = listOf<FeatureModel>(
-        FeatureModel(
-            title = "Mobile Legend",
-            image = painterResource(id = R.drawable.ic_game_mobile_legends),
-            route = "order"
-        ), FeatureModel(
-            title = "Free Fire",
-            image = painterResource(id = R.drawable.ic_game_free_fire),
-            route = ""
-        ), FeatureModel(
-            title = "Honor Of Kings",
-            image = painterResource(id = R.drawable.ic_game_honor_of_kings),
-            route = ""
-        ), FeatureModel(
-            title = "Auto Chess",
-            image = painterResource(id = R.drawable.ic_game_auto_chess),
-            route = ""
-        ),
-        FeatureModel(
-            title = "see",
-            image = painterResource(id = R.drawable.ic_menu_stroke_filled),
-            route = ""
-        )
-    )
+    var clover by remember { mutableStateOf(0) }
+    var energy by remember { mutableStateOf(0) }
+    var showDialog by remember { mutableStateOf(false) }
 
-    val featureTopUp = listOf(
-        FeatureModel(
-            title = "Shopee Pay",
-            image = painterResource(id = R.drawable.ic_wallet_spay),
-            route = ""
-        ), FeatureModel(
-            title = "Gopay", image = painterResource(id = R.drawable.ic_wallet_gopay), route = ""
-        ), FeatureModel(
-            title = "Dana", image = painterResource(id = R.drawable.ic_wallet_dana), route = ""
-        ), FeatureModel(
-            title = "OVO", image = painterResource(id = R.drawable.ic_wallet_ovo), route = ""
-        ),
-        FeatureModel(
-            title = "see",
-            image = painterResource(id = R.drawable.ic_menu_stroke_filled),
-            route = ""
-        )
-    )
-
-    val featureMobileCredit = listOf(
-        FeatureModel(
-            title = "by.U", image = painterResource(id = R.drawable.ic_provider_byu), route = ""
-        ), FeatureModel(
-            title = "Telkomsel",
-            image = painterResource(id = R.drawable.ic_provider_telkomsel),
-            route = ""
-        ), FeatureModel(
-            title = "Indosat",
-            image = painterResource(id = R.drawable.ic_provider_indosat),
-            route = ""
-        ), FeatureModel(
-            title = "Axis", image = painterResource(id = R.drawable.ic_provider_axis), route = ""
-        ),
-        FeatureModel(
-            title = "see",
-            image = painterResource(id = R.drawable.ic_menu_stroke_filled),
-            route = ""
-        )
-    )
+    fun handleProductClick(product: ProductResponse) {
+        if (product.isMaintenance == 1) showDialog = true
+        else navController.navigate("order/${product.id}")
+    }
 
     Scaffold(topBar = {
         TopBarWithLogo(navController = navController)
@@ -130,11 +93,11 @@ fun HomeScreen(navController: NavController) {
                 .background(Color.White)
                 .verticalScroll(rememberScrollState())
         ) {
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(PaddingSmall))
 
-            WalletInfo()
+            WalletInfo(clover = clover, energy = energy)
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(PaddingSmall))
 
             Image(
                 painter = painterResource(id = R.drawable.banner),
@@ -142,35 +105,82 @@ fun HomeScreen(navController: NavController) {
                 modifier = Modifier.fillMaxWidth()
             )
 
-            CardFeature()
+            CardFeature(onItemClick = {
+                showDialog = it
+            })
 
-            FeatureRecommendation("Game Recommendation", items = featureGame) {
-                navController.navigate(it)
+            mProductDataState.handle(onLoading = {
+
+                PlaceholderSection(
+                    titles = listOf(
+                        "Game Recommendation", "Top Up E-Wallet", "Top up Mobile Credit"
+                    )
+                )
+
+            }, onSuccess = {
+
+                it.balance?.clover?.let { cl -> clover = cl }
+                energy = it.balance?.energy ?: 0
+
+                FeatureRecommendation(
+                    "Game Recommendation",
+                    items = it.game,
+                    onItemClick = ::handleProductClick
+                )
+                Spacer(modifier = Modifier.height(PaddingLarge))
+
+                FeatureRecommendation(
+                    "Top Up E-Wallet",
+                    items = it.eWallet,
+                    onItemClick = ::handleProductClick
+                )
+
+                Spacer(modifier = Modifier.height(PaddingLarge))
+
+                FeatureRecommendation(
+                    "Top up Mobile Credit",
+                    items = it.mobileCredit,
+                    onItemClick = ::handleProductClick
+                )
+
+            }, onError = {
+
+                PlaceholderSection(
+                    titles = listOf(
+                        "Game Recommendation", "Top Up E-Wallet", "Top up Mobile Credit"
+                    )
+                )
+
+            })
+
+            if (showDialog) {
+                CustomDialog(
+                    title = "Oops!",
+                    message = "This product is being fixed right now. Please check back soon!",
+                    isSuccess = false
+                ) {
+                    showDialog = false
+                }
             }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            FeatureRecommendation("Top Up E-Wallet", items = featureTopUp) {
-
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            FeatureRecommendation("Top up Mobile Credit", items = featureMobileCredit) {
-
-            }
-
         }
     }
 }
 
 @Composable
-fun CardFeature() {
+fun PlaceholderSection(titles: List<String>) {
+    titles.forEach {
+        ShimmerProduct(title = it)
+        Spacer(modifier = Modifier.height(PaddingLarge))
+    }
+}
+
+@Composable
+fun CardFeature(onItemClick: (Boolean) -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .offset(y = (-20).dp)
-            .padding(horizontal = 24.dp),
+            .padding(horizontal = PaddingLarge),
         colors = CardDefaults.cardColors(
             containerColor = Color.White,
         ),
@@ -182,18 +192,19 @@ fun CardFeature() {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 12.dp),
+                .padding(horizontal = PaddingMedium, vertical = PaddingSmall),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Column(
-                modifier = Modifier, horizontalAlignment = Alignment.CenterHorizontally
+                modifier = Modifier.clickable { onItemClick(true) },
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.ic_default_game),
                     contentDescription = null
                 )
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(PaddingMini))
                 Text(
                     text = "Game",
                     style = AppTypography.bodySmall,
@@ -203,13 +214,14 @@ fun CardFeature() {
                 )
             }
             Column(
-                modifier = Modifier, horizontalAlignment = Alignment.CenterHorizontally
+                modifier = Modifier.clickable { onItemClick(true) },
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.ic_default_e_wallet),
                     contentDescription = null
                 )
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(PaddingMini))
                 Text(
                     text = "E-Wallet",
                     style = AppTypography.bodySmall,
@@ -219,13 +231,14 @@ fun CardFeature() {
                 )
             }
             Column(
-                modifier = Modifier, horizontalAlignment = Alignment.CenterHorizontally
+                modifier = Modifier.clickable { onItemClick(true) },
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.ic_default_apps),
                     contentDescription = null
                 )
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(PaddingMini))
                 Text(
                     text = "Apps",
                     style = AppTypography.bodySmall,
@@ -235,13 +248,14 @@ fun CardFeature() {
                 )
             }
             Column(
-                modifier = Modifier, horizontalAlignment = Alignment.CenterHorizontally
+                modifier = Modifier.clickable { onItemClick(true) },
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.ic_default_credit),
                     contentDescription = null
                 )
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(PaddingMini))
                 Text(
                     text = "Credit",
                     style = AppTypography.bodySmall,
@@ -258,10 +272,10 @@ fun CardFeature() {
 @Composable
 fun FeatureRecommendation(
     title: String = "Game Recommendation",
-    items: List<FeatureModel>,
-    onItemClick: (String) -> Unit
+    items: List<ProductResponse>,
+    onItemClick: (ProductResponse) -> Unit
 ) {
-    Column(modifier = Modifier.padding(start = 24.dp)) {
+    Column(modifier = Modifier.padding(start = PaddingLarge)) {
         Text(
             text = title,
             style = AppTypography.bodyLarge,
@@ -269,40 +283,37 @@ fun FeatureRecommendation(
             color = Black70,
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(PaddingMedium))
 
         LazyRow(
-            contentPadding = PaddingValues(end = 24.dp)
+            contentPadding = PaddingValues(end = PaddingLarge)
         ) {
             items(items) {
-                when (it.title) {
+                Column(
+                    modifier = Modifier
+                        .padding(end = PaddingSmall)
+                        .clickable {
+                            onItemClick(it)
+                        }, horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    AsyncImage(
+                        model = it.imageUrl,
+                        contentDescription = null,
+                        modifier = Modifier.size(width = 100.dp, height = 140.dp)
+                    )
 
-                    "see" -> MoreFeature()
-
-                    else -> {
-                        Column(
-                            modifier = Modifier
-                                .padding(end = 12.dp)
-                                .clickable {
-                                    onItemClick(it.route)
-                                },
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Image(
-                                painter = it.image,
-                                contentDescription = null,
-                                modifier = Modifier.size(width = 100.dp, height = 140.dp)
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text(
-                                text = it.title,
-                                style = AppTypography.bodySmall,
-                                fontWeight = FontWeight.W400,
-                                color = Black70,
-                            )
-                        }
-                    }
+                    Spacer(modifier = Modifier.height(PaddingMini))
+                    Text(
+                        text = it.name!!,
+                        style = AppTypography.bodySmall,
+                        fontWeight = FontWeight.W400,
+                        color = Black70,
+                    )
                 }
+            }
+
+            item {
+                MoreFeature()
             }
         }
     }
@@ -316,7 +327,7 @@ fun MoreFeature() {
                 .size(width = 100.dp, height = 140.dp)
                 .background(
                     shape = RoundedCornerShape(
-                        8.dp
+                        PaddingMini
                     ), color = Blue90
                 ), contentAlignment = Alignment.Center
         ) {
@@ -326,7 +337,7 @@ fun MoreFeature() {
                 tint = ColorPrimary
             )
         }
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(PaddingMini))
         Text(
             text = "See All",
             style = AppTypography.bodySmall,
@@ -337,11 +348,11 @@ fun MoreFeature() {
 }
 
 @Composable
-fun WalletInfo() {
+fun WalletInfo(clover: Int = 0, energy: Int = 0) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 24.dp),
+            .padding(horizontal = PaddingLarge),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -355,11 +366,11 @@ fun WalletInfo() {
                 painter = painterResource(id = R.drawable.luck_green),
                 contentDescription = null,
                 modifier = Modifier
-                    .width(24.dp)
-                    .height(24.dp)
+                    .width(PaddingLarge)
+                    .height(PaddingLarge)
                     .align(Alignment.CenterVertically)
             )
-            Spacer(modifier = Modifier.width(8.dp))
+            Spacer(modifier = Modifier.width(PaddingMini))
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -373,7 +384,7 @@ fun WalletInfo() {
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "10.000",
+                    text = "$clover",
                     style = AppTypography.bodySmall,
                     fontWeight = FontWeight.W500,
                     color = Black70
@@ -408,11 +419,11 @@ fun WalletInfo() {
                 painter = painterResource(id = R.drawable.flash_pirple),
                 contentDescription = null,
                 modifier = Modifier
-                    .width(24.dp)
-                    .height(24.dp)
+                    .width(PaddingLarge)
+                    .height(PaddingLarge)
                     .align(Alignment.CenterVertically)
             )
-            Spacer(modifier = Modifier.width(8.dp))
+            Spacer(modifier = Modifier.width(PaddingMini))
             Column {
                 Text(
                     text = "Energy",
@@ -422,7 +433,7 @@ fun WalletInfo() {
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "400",
+                    text = "$energy",
                     style = AppTypography.bodySmall,
                     fontWeight = FontWeight.W500,
                     color = Black70
@@ -432,9 +443,51 @@ fun WalletInfo() {
     }
 }
 
+@Composable
+fun ShimmerProduct(title: String) {
+    Column(
+        modifier = Modifier.padding(start = PaddingLarge),
+    ) {
+        Text(
+            text = title,
+            style = AppTypography.bodyLarge,
+            fontWeight = FontWeight.Bold,
+            color = Black70,
+        )
+
+        Spacer(modifier = Modifier.height(PaddingMedium))
+
+        Row(modifier = Modifier.horizontalScroll(rememberScrollState())) {
+            repeat(4) {
+                Column(
+                    modifier = Modifier.padding(end = PaddingSmall),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    ShimmerEffect(
+                        modifier = Modifier
+                            .size(width = 100.dp, height = 140.dp)
+                            .background(Color.LightGray, RoundedCornerShape(PaddingMini)),
+                        durationMillis = 1000
+                    )
+                    Spacer(modifier = Modifier.height(PaddingMini))
+                    Text(
+                        text = "Loading...",
+                        style = AppTypography.bodySmall,
+                        fontWeight = FontWeight.W400,
+                        modifier = Modifier.placeholder(
+                            visible = false, highlight = PlaceholderHighlight.shimmer()
+                        )
+                    )
+                }
+            }
+            MoreFeature()
+        }
+
+    }
+}
+
 @Preview
 @Composable
 fun HomeScreenPrev() {
     HomeScreen(navController = rememberNavController())
-//    MoreFeature()
 }

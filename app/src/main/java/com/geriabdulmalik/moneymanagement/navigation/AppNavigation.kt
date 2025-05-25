@@ -3,9 +3,12 @@ package com.geriabdulmalik.moneymanagement.navigation
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import com.geriabdulmalik.moneymanagement.ui.screens.auth.login.LoginScreen
+import com.geriabdulmalik.moneymanagement.ui.screens.detail.DetailPaymentScreen
 import com.geriabdulmalik.moneymanagement.ui.screens.main.MainScreen
 import com.geriabdulmalik.moneymanagement.ui.screens.main.account.AccountScreen
 import com.geriabdulmalik.moneymanagement.ui.screens.main.explore.ExploreScreen
@@ -23,7 +26,9 @@ sealed class Screen(val route: String) {
     object MainScreen : Screen("main")
     object NotificationScreen : Screen("notification")
 
-    object OrderScreen : Screen("order")
+    object OrderScreen : Screen("order/{productId}")
+
+    object DetailPaymentScreen : Screen("detail")
 
     //BottomNavigation
     object HomeScreen : Screen("home")
@@ -55,8 +60,18 @@ fun AppNavigation(navController: NavHostController) {
             NotificationScreen(navController = navController)
         }
 
-        composable(Screen.OrderScreen.route) {
+        composable(
+            route = Screen.OrderScreen.route,
+            arguments = listOf(
+                navArgument("productId") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val productId = backStackEntry.arguments?.getString("productId")
             OrderScreen(navController = navController)
+        }
+
+        composable(Screen.DetailPaymentScreen.route) {
+            DetailPaymentScreen(navController = navController)
         }
     }
 }
@@ -76,7 +91,7 @@ fun NavigationGraph(navHostController: NavHostController, navController: NavCont
             TransactionScreen()
         }
         composable(Screen.AccountScreen.route) {
-            AccountScreen()
+            AccountScreen(navController = navController)
         }
     }
 }

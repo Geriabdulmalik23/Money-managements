@@ -23,9 +23,11 @@ class AccountViewModel @Inject constructor(private val mUserRepository: UserRepo
     private val _isLoading = MutableStateFlow<Boolean>(false)
     val isLoading = _isLoading
 
-    private
+    private val _mLogout = MutableStateFlow<ResultState<Unit>>(ResultState.Idle)
+    val logoutState: StateFlow<ResultState<Unit>> = _mLogout
 
-    fun getProfile() {
+
+    private fun getProfile() {
         viewModelScope.launch {
             _mUserData.emit(ResultState.Loading)
             try {
@@ -36,6 +38,21 @@ class AccountViewModel @Inject constructor(private val mUserRepository: UserRepo
                 }
             } catch (exception: Exception) {
                 _mUserData.emit(ResultState.Error(exception.message ?: "Data failed"))
+            }
+        }
+    }
+
+
+    fun logout() {
+        viewModelScope.launch {
+            try {
+                when (val result = mUserRepository.logout()) {
+                    is ApiResult.Success -> _mLogout.emit(ResultState.Success(result.data))
+                    is ApiResult.Error -> _mLogout.emit(ResultState.Error(result.message))
+                    else -> Unit
+                }
+            } catch (exception: Exception) {
+                _mLogout.emit(ResultState.Error(exception.message ?: "Data failed"))
             }
         }
     }

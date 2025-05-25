@@ -2,7 +2,6 @@ package com.geriabdulmalik.moneymanagement.data.repository
 
 import com.geriabdulmalik.moneymanagement.data.model.AuthResponse
 import com.geriabdulmalik.moneymanagement.data.local.AuthPreferences
-import com.geriabdulmalik.moneymanagement.data.model.BodyResponse
 import com.geriabdulmalik.moneymanagement.data.remote.AuthService
 import com.geriabdulmalik.moneymanagement.utils.ApiResult
 import com.geriabdulmalik.moneymanagement.utils.parseError
@@ -22,7 +21,7 @@ class AuthRepository @Inject constructor(
         return authPreferences.token
     }
 
-    suspend fun authLogin(email: String, password: String): ApiResult<BodyResponse> {
+    suspend fun authLogin(email: String, password: String): ApiResult<AuthResponse> {
         return try {
             val emailRequestBody = email.toRequestBody("text/plain".toMediaTypeOrNull())
             val passwordRequestBody = password.toRequestBody("text/plain".toMediaTypeOrNull())

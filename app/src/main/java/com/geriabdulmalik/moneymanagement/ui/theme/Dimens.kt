@@ -6,6 +6,7 @@ object Dimens {
     val PaddingMini = 8.dp
     val PaddingSmall = 12.dp
     val PaddingMedium = 16.dp
+    val PaddingExtraMedium = 18.dp
     val PaddingLarge = 24.dp
 
     val HighTextField = 46.dp
